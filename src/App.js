@@ -38,7 +38,7 @@ export default function App() {
   const [prompt, setPrompt] = useState("");
   const [verbosity, setVerbosity] = useState("medium");
   const [language, setLanguage] = useState("en");
-  const [status, setStatus] = useState("Ready");
+  const [status, setStatus] = useState("");
   const [inFlight, setInFlight] = useState(null);
 
   const [ttsAvailable, setTtsAvailable] = useState(false);
@@ -65,8 +65,8 @@ export default function App() {
   useEffect(() => {
     const prevHtmlOverflow = document.documentElement.style.overflow;
     const prevBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "auto";
+    document.body.style.overflow = "auto";
     return () => {
       document.documentElement.style.overflow = prevHtmlOverflow;
       document.body.style.overflow = prevBodyOverflow;
@@ -263,7 +263,7 @@ export default function App() {
       setOutline(data);
       setIndex(0);
       setExpanded(new Set());
-      setStatus("Ready");
+      setStatus("");
       if (autoSpeakTitles && data.sections && data.sections.length) {
         const first = flattenSections(data.sections)[0];
         if (first) cancelAndSpeak(first.title, 120);
@@ -277,19 +277,19 @@ export default function App() {
   }
 
   const styles = {
-    app: { fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.5, height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" },
+    app: { fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.5, height: "100vh", display: "flex", flexDirection: "column", overflow: "auto" },
     header: { padding: "12px 16px", borderBottom: "1px solid #ddd", background: "#0b3d91", color: "#fff", flex: "0 0 auto" },
-    container: { display: "grid", gridTemplateColumns: "320px 1fr", flex: 1, overflow: "hidden" },
-    sidebar: { borderRight: "1px solid #e5e7eb", padding: 12, overflow: "hidden" },
-    main: { padding: 16, display: "flex", flexDirection: "column", overflow: "hidden" },
+    container: { display: "grid", gridTemplateColumns: "320px 1fr", flex: 1, overflow: "auto" },
+    sidebar: { borderRight: "1px solid #e5e7eb", padding: 12, overflow: "auto" },
+    main: { padding: 16, display: "flex", flexDirection: "column", overflow: "auto" },
     controlsSticky: { position: "sticky", top: 0, background: "#fff", zIndex: 1, paddingBottom: 8, borderBottom: "1px solid #e5e7eb", marginBottom: 16 },
     readerScroll: { flex: 1, overflowY: "auto", paddingTop: 8 },
     button: { width: "100%", textAlign: "left", padding: "10px 12px", marginBottom: 6, borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff" },
     buttonActive: { outline: "3px solid #0b3d91", background: "#eef3ff" },
     controlsRow: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" },
-    label: { fontSize: 14, fontWeight: 600 },
+    label: { fontSize: 12, fontWeight: 600 },
     input: { padding: 8, border: "1px solid #ccc", borderRadius: 8, minWidth: 120 },
-    textarea: { width: "100%", minHeight: 80, padding: 8, border: "1px solid #ccc", borderRadius: 8 },
+    textarea: { width: "100%", minHeight: 40, padding: 8, border: "1px solid #ccc", borderRadius: 8 },
     badge: { padding: "2px 8px", borderRadius: 999, background: "#eef2ff", color: "#1e40af", fontSize: 12 },
     ttsRow: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 8 },
     bodyRow: { display: "flex", gap: 10, alignItems: "start" },
@@ -340,15 +340,22 @@ export default function App() {
               );
             })}
           </ul>
+             
         </nav>
 
         <main id="content" style={styles.main} tabIndex={0} role="region" aria-label="Content area" aria-live="polite">
           <section aria-labelledby="controls-h" style={styles.controlsSticky}>
-            <h2 id="controls-h" style={{ fontSize: 18, marginBottom: 8 }}>Generate content</h2>
+
             <div style={{ display: "grid", gap: 8, gridTemplateColumns: "1fr" }}>
-              <label style={styles.label} htmlFor="prompt">Prompt</label>
-              <textarea id="prompt" ref={promptRef} style={styles.textarea} value={prompt} onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Ask for an outline… e.g., 'Explain climate change for beginners'" />
+              
+              <label style={styles.label} htmlFor="prompt">Ask Anything</label>
+              <textarea style={{
+    ...styles.textarea,
+    height: "40px", 
+  }} id="prompt" ref={promptRef}  value={prompt} onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Ask for an anything… e.g., 'Explain climate change for beginners'" />
+
+                     <h5 aria-live="polite" style={{fontSize:10, padding:2, margin:0}}>{status}</h5>
 
               <div style={styles.controlsRow}>
                 <label style={styles.label} htmlFor="verbosity">Verbosity</label>
@@ -371,21 +378,21 @@ export default function App() {
                 <button onClick={() => { setOutline(DEFAULT_SAMPLE); setIndex(0); setExpanded(new Set());
                           if (autoSpeakTitles) { const first = flattenSections(DEFAULT_SAMPLE.sections)[0]; if (first) cancelAndSpeak(first.title, 120); } }}
                         style={{ ...styles.input, cursor: "pointer" }}>
-                  Refresh Response
+                  Refresh
                 </button>
               </div>
 
               <div style={styles.ttsRow} aria-label="Speech settings">
-                <label><input type="checkbox" checked={autoSpeakTitles} onChange={(e)=>setAutoSpeakTitles(e.target.checked)} /> Auto-speak titles</label>
-                <label><input type="checkbox" checked={autoSpeakBodies} onChange={(e)=>setAutoSpeakBodies(e.target.checked)} /> Auto-speak bodies</label>
+                <label style={{fontSize:13}}><input type="checkbox" checked={autoSpeakTitles} onChange={(e)=>setAutoSpeakTitles(e.target.checked)}  /> Auto-speak titles</label>
+                <label style={{fontSize:13}}><input type="checkbox" checked={autoSpeakBodies} onChange={(e)=>setAutoSpeakBodies(e.target.checked)} /> Auto-speak bodies</label>
                 <button onClick={stopSpeak} style={{ ...styles.input, cursor: "pointer", minWidth: 90 }}>
                   {isSpeaking ? "Stop (Esc)" : "Stop"}
                 </button>
                 {ttsAvailable ? (
                   <>
-                    <label>Voice
+                    <label style={{fontSize:13}}>Voice 
                       <select value={voiceURI} onChange={(e) => setVoiceURI(e.target.value)}
-                              style={{ ...styles.input, minWidth: 180 }} aria-label="Voice">
+                              style={{ ...styles.input, minWidth: 120}} aria-label="Voice">
                         {voices.map((v) => (
                           <option key={v.voiceURI} value={v.voiceURI}>
                             {v.name} ({v.lang})
@@ -393,12 +400,15 @@ export default function App() {
                         ))}
                       </select>
                     </label>
-                    <label>Rate
+                    <label style={{fontSize:13}}>Speech Rate
                       <input type="range" min="0.5" max="2" step="0.1"
+                          style={{ width: 80, height: 16, verticalAlign: "middle" }} 
+
                              value={rate} onChange={(e)=>setRate(parseFloat(e.target.value))} aria-label="Speech rate" />
                     </label>
-                    <label>Volume
-                      <input type="range" min="0" max="1" step="0.05"
+                    <label style={{fontSize:13}}>Volume
+                      <input type="range" min="0" max="1" step="0.05"   style={{ width: 80, height: 16, verticalAlign: "middle" }} 
+
                              value={volume} onChange={(e)=>setVolume(parseFloat(e.target.value))} aria-label="Speech volume" />
                     </label>
                   </>
@@ -409,20 +419,13 @@ export default function App() {
                 )}
               </div>
 
-              <p aria-live="polite"><strong>Status:</strong> {status}</p>
 
-              <div role="note" aria-label="Keyboard help"
-                   style={{ background: "#f8fafc", border: "1px solid #e5e7eb", borderRadius: 8, padding: 12 }}>
-                <p style={{ margin: 0 }}>
-                  <strong>Shortcuts:</strong> ↑/↓ move • Enter/Space toggle • → expand • ← collapse •
-                  S speak title • Shift+S speak body • Esc stop • Ctrl/Cmd+Enter Generate • Ctrl/Alt+G Generate • Ctrl/Alt+E Edit prompt
-                </p>
-              </div>
+           
             </div>
           </section>
 
           <section aria-labelledby="reader-h" style={styles.readerScroll}>
-            <h2 id="reader-h" style={{ fontSize: 18, marginBottom: 8 }}>Structured Response</h2>
+            <h2 id="reader-h" style={{ fontSize: 13, marginBottom: 8 }}>Structured Response</h2>
             {flat.map((s, i) => {
               const isOpen = expanded.has(s.id);
               const isActive = i === index;
@@ -459,7 +462,14 @@ export default function App() {
       </div>
 
       <footer style={{ padding: 12, borderTop: "1px solid #eee", fontSize: 13 }}>
-        <span>WCAG-friendly: keyboard-first, ARIA landmarks, live regions, visible focus. Built-in speech uses browser TTS</span>
+
+<div role="note"  aria-label="Keyboard help"
+                   style={{ background: "#f8fafc",fontSize:"12px", border: "1px solid #e5e7eb", borderRadius: 8, padding: 12,  }}>
+                <p style={{ margin: 0 }}>
+                  <strong>Shortcuts:</strong> ↑/↓ move • Enter/Space toggle • → expand • ← collapse •
+                  S speak title • Shift+S speak body • Esc stop • Ctrl/Cmd+Enter Generate • Ctrl/Alt+G Generate • Ctrl/Alt+E Edit prompt
+                </p>
+              </div>
       </footer>
     </div>
   );
